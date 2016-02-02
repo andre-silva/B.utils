@@ -188,8 +188,18 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     result
 }
 
-# B.com color palette - function designed to work in a similar fashion to
-# the rainbow function
+#' Returns color vector
+#'
+#' This function returns one color or a vector of colors, similar to the
+#' rainbow() function. The only difference is it uses the company color
+#' palette
+#'
+#' @param color It can be the color name in which case the function will only
+#'      return that color or a number in which case the function will return a
+#'      vector of colors with the parameter's length. Defaults to "darkblue"
+#' @export
+#' @examples
+#' B.color(10)
 B.color <- function(color = "darkblue1") {
     # Create color palette as defined in
     # https://wiki.booking.com/display/~rtomasi/Booking.com+color+palette
