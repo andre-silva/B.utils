@@ -25,6 +25,11 @@
 #' destfile <- "./Data/report.xml"
 #' authFile <- "settings.txt"
 #' df <- getReportFromWorkday(workdayURL, destFile, authFile)
+
+suppressWarnings(library(XML))
+suppressWarnings(library(jsonlite))
+suppressWarnings(library(RCurl))
+
 getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     # First get Workday authentication credentials. From my research I didn't
     # any great way of doing that. Since obviously we don't want those in the
