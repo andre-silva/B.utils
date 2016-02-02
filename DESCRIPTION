@@ -6,6 +6,7 @@ Date: 2016-02-02
 Author: Hugo Silva
 Maintainer: hugo.silva@booking.com
 Description: Contains a set of functions useful for us to use while doing
-             analyses in HR
+    analyses in HR
 License: Private package
 LazyData: TRUE
+RoxygenNote: 5.0.1.9000
