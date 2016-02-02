@@ -1,4 +1,30 @@
-# Reads Workday report into a data frame
+#' Get Report from Workday
+#'
+#' This function allows you to get a web-service enabled report from Workday.
+#' If the format is Simple XML, CSV or JSON then the destFile parameter is
+#' optional and the function returns a dataframe with the report contents.
+#'
+#' For other formats, the destFile parameter is mandatory and the only thing
+#' this function will do is downloading the report into your hard drive.
+#'
+#' In any format, it is recommended to set the destFile parameter as the data
+#' might be more complex and the simple dataframe conversion in this function
+#' might not suit your needs
+#'
+#' @param URL This is the URL Workday provides for the specific format you're
+#' looking to download
+#' @param destFile This is the location and file name of the downloaded report
+#' @param authFile This is the file containing your authentication settings in
+#' Workday. Defaults to "settings". The file should have the following format:
+#'
+#' username:jdoe
+#' password:Pass123
+#' @export
+#' @examples
+#' workdayURL <- "https://wd3-services1.myworkday.com/ccx/service/customreport2/booking/HSMIT/All_Active_and_Terminated_Workers_with_IDs?Effective_as_of_Date=2016-02-02-08%3A00&format=simplexml"
+#' destfile <- "./Data/report.xml"
+#' authFile <- "settings.txt"
+#' df <- getReportFromWorkday(workdayURL, destFile, authFile)
 getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     # First get Workday authentication credentials. From my research I didn't
     # any great way of doing that. Since obviously we don't want those in the
@@ -6,16 +32,16 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     # The file name and path should be passed on the authFile argument.
     # Otherwise it will look for a file with the name "settings" in the working
     # directory
-    
+
     # Settings file should have the following format
     # username:jdoe
     # password:Pass123
-    
+
     # Libraries necessary
     suppressWarnings(library(XML))
     suppressWarnings(library(jsonlite))
     suppressWarnings(library(RCurl))
-    
+
     # Check if the file exists and has the correct format
     if(!file.exists(authFile)) {
         stop("Unable to find authentication file")
@@ -35,7 +61,7 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
             stop("Authentication settings file format is not the expected")
         }
     }
-    
+
     # Check and validate format
     if (!grepl("&format=", URL)){
         format <- "workdayxml"
@@ -43,7 +69,7 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     else {
         format <- unlist(strsplit(URL, "&format=", fixed = TRUE))[2]
     }
-    
+
     # Use separate function based on format
     tmpFile <- "workdayFile.tmp"
     switch(format,
@@ -59,14 +85,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                                     password = password,
                                     writedata = f@ref)
                    close(f)
-                   
+
                    if(a != 0 ) {
                        file.remove(tmpFile)
                        stop(paste("Error downloading the file. Please check",
                                   "the URL is correct as well as the username",
                                   "and password", sep = " "))
                    }
-                   
+
                    result <- TRUE
                }
            },
@@ -76,14 +102,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                                 password = password,
                                 writedata = f@ref)
                close(f)
-               
+
                if(a != 0 ) {
                    file.remove(tmpFile)
                    stop(paste("Error downloading the file. Please check",
                               "the URL is correct as well as the username",
                               "and password", sep = " "))
                }
-               
+
                result <- xmlParse(tmpFile)
                result <- xmlToDataFrame(result)
            },
@@ -93,14 +119,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                                 password = password,
                                 writedata = f@ref)
                close(f)
-               
+
                if(a != 0 ) {
                    file.remove(tmpFile)
                    stop(paste("Error downloading the file. Please check",
                               "the URL is correct as well as the username",
                               "and password", sep = " "))
                }
-               
+
                result <- read.csv(tmpFile)
            },
            gdata = {
@@ -115,14 +141,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                                     password = password,
                                     writedata = f@ref)
                    close(f)
-                   
+
                    if(a != 0 ) {
                        file.remove(tmpFile)
                        stop(paste("Error downloading the file. Please check",
                                   "the URL is correct as well as the username",
                                   "and password", sep = " "))
                    }
-                   
+
                    result <- TRUE
                }
            },
@@ -132,14 +158,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                                 password = password,
                                 writedata = f@ref)
                close(f)
-               
+
                if(a != 0 ) {
                    file.remove(tmpFile)
                    stop(paste("Error downloading the file. Please check",
                               "the URL is correct as well as the username",
                               "and password", sep = " "))
                }
-               
+
                result <- fromJSON(tmpFile)
                result <- result$Report_Entry
            },
@@ -147,7 +173,7 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
                file.remove(tmpFile)
                stop(paste("Format not supported: ", format))
            })
-    
+
 
     if(is.null(destFile)) {
         ## Remove temporary file
@@ -158,7 +184,7 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
         file.copy(tmpFile, destFile, overwrite = TRUE)
         file.remove(tmpFile)
     }
-    
+
     result
 }
 
@@ -211,7 +237,7 @@ B.color <- function(color = "darkblue1") {
                   red6 = "#FCE9E9",
                   orange6 = "#FDF0E8"
                   )
-    
+
     # If argument is a number then returns vector with colors with length equal
     # to the argument. Otherwise searches for the color name within the vector
     if(is.numeric(color)) {
