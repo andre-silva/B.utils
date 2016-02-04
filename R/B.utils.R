@@ -256,9 +256,9 @@ B.color <- function(color = "darkblue1") {
     # If argument is a number then returns vector with colors with length equal
     # to the argument. Otherwise searches for the color name within the vector
     if(is.numeric(color)) {
-        B.colors[1:color[1]]
+        unname(B.colors[1:color[1]])
     }
     else {
-        B.colors[tolower(color)]
+        unname(B.colors[tolower(color)])
     }
 }
