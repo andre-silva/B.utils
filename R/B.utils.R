@@ -15,7 +15,10 @@
 #' looking to download
 #' @param destFile This is the location and file name of the downloaded report
 #' @param authFile This is the file containing your authentication settings in
-#' Workday. Defaults to "settings". The file should have the following format:
+#' Workday. Defaults to NULL where it gets the username and password from the
+#' environment variables workday_user and workday_pwd respectively. Alternatively,
+#' a filename can be specified and the credentials will be read from it. The file
+#' should have the following format:
 #'
 #' username:jdoe
 #' password:Pass123
@@ -30,13 +33,16 @@ suppressWarnings(library(XML))
 suppressWarnings(library(jsonlite))
 suppressWarnings(library(RCurl))
 
-getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
-    # First get Workday authentication credentials. From my research I didn't
-    # any great way of doing that. Since obviously we don't want those in the
-    # code the solution is to have a text file containing username and password.
+getReportFromWorkday <- function(URL, destFile = NULL, authFile = NULL) {
+    # First get Workday authentication credentials. The best way I found to do
+    # is to store them as R environment variables. To make that permanent it's
+    # only necessary to add them on the  ~./.Renviron file. Another option is to
+    # use a text file with the credentials defined in it.
     # The file name and path should be passed on the authFile argument.
-    # Otherwise it will look for a file with the name "settings" in the working
-    # directory
+
+    # If using the environment variables, these are the keys that should be set:
+    # workday_user
+    # workday_pwd
 
     # Settings file should have the following format
     # username:jdoe
@@ -48,22 +54,30 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = "settings") {
     suppressWarnings(library(RCurl))
 
     # Check if the file exists and has the correct format
-    if(!file.exists(authFile)) {
+    if(!is.null(authFile) & !file.exists(authFile)) {
         stop("Unable to find authentication file")
     }
     else {
-        authSettings <- read.table(authFile, header=FALSE, sep=":",
-                                   colClasses = "character",
-                                   col.names = c("Property", "Value"))
-        format <- c("username","password")
-
-        if(all(length(format)==length(authSettings$Property)) &
-           all(format == authSettings$Property)) {
-            username <- authSettings$Value[1]
-            password <- authSettings$Value[2]
+        if(is.null(authFile)) {
+            # Read from environment variables
+            username <- Sys.getenv("workday_user")
+            password <- Sys.getenv("workday_pwd")
         }
         else {
-            stop("Authentication settings file format is not the expected")
+            # Read from file
+            authSettings <- read.table(authFile, header=FALSE, sep=":",
+                                       colClasses = "character",
+                                       col.names = c("Property", "Value"))
+            format <- c("username","password")
+
+            if(all(length(format)==length(authSettings$Property)) &
+               all(format == authSettings$Property)) {
+                username <- authSettings$Value[1]
+                password <- authSettings$Value[2]
+            }
+            else {
+                stop("Authentication settings file format is not the expected")
+            }
         }
     }
 
