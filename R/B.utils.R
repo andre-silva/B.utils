@@ -53,15 +53,14 @@ getReportFromWorkday <- function(URL, destFile = NULL, authFile = NULL) {
     suppressWarnings(library(jsonlite))
     suppressWarnings(library(RCurl))
 
-    # Check if the file exists and has the correct format
-    if(!is.null(authFile) & !file.exists(authFile)) {
-        stop("Unable to find authentication file")
+    if(is.null(authFile)) {
+        # Read from environment variables
+        username <- Sys.getenv("workday_user")
+        password <- Sys.getenv("workday_pwd")
     }
     else {
-        if(is.null(authFile)) {
-            # Read from environment variables
-            username <- Sys.getenv("workday_user")
-            password <- Sys.getenv("workday_pwd")
+        if(!file.exists(authFile)) {
+            stop("Unable to find authentication file")
         }
         else {
             # Read from file
