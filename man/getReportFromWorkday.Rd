@@ -4,7 +4,7 @@
 \alias{getReportFromWorkday}
 \title{Get Report from Workday}
 \usage{
-getReportFromWorkday(URL, destFile = NULL, authFile = "settings")
+getReportFromWorkday(URL, destFile = NULL, authFile = NULL)
 }
 \arguments{
 \item{URL}{This is the URL Workday provides for the specific format you're
@@ -13,7 +13,10 @@ looking to download}
 \item{destFile}{This is the location and file name of the downloaded report}
 
 \item{authFile}{This is the file containing your authentication settings in
-Workday. Defaults to "settings". The file should have the following format:
+Workday. Defaults to NULL where it gets the username and password from the
+environment variables workday_user and workday_pwd respectively. Alternatively,
+a filename can be specified and the credentials will be read from it. The file
+should have the following format:
 
 username:jdoe
 password:Pass123}

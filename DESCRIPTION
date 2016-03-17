@@ -10,3 +10,4 @@ Description: Contains a set of functions useful for us to use while doing
 License: Private package
 LazyData: TRUE
 RoxygenNote: 5.0.1.9000
+Imports: XML, jsonlite, RCurl
